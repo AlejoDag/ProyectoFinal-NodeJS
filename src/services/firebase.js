@@ -1,4 +1,5 @@
 import { initializeApp, cert } from "firebase-admin/app";
+import { getFirestore } from "firebase-admin/firestore";
 
 const firebaseConfig = {
   type: process.env.FIREBASE_TYPE,
@@ -17,3 +18,5 @@ const firebaseConfig = {
 initializeApp({
   credential: cert(firebaseConfig),
 });
+
+export const db = getFirestore();
