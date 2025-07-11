@@ -16,7 +16,7 @@ export const create = async (data) => {
     throw new Error("Faltan campos requeridos: nombre y precio");
   }
 
-  return await Product.getById(id);
+  return await Product.create(data);
 };
 
 //Eliminar producto
