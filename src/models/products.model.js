@@ -1,50 +1,36 @@
 import { db } from "../services/firebase.js";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  deleteDoc,
-  setDoc,
-} from "firebase-admin/firestore";
-
-const productCollection = collection(db, "products");
 
 export const Product = {
-  // Obtener todos los productos
+  //Obtener todos los productos
   async getAll() {
     try {
-      const productList = await getDocs(productCollection);
-      const products = [];
-
+      const productList = await db.collection("products").get();
+      const productos = [];
       productList.forEach((doc) => {
-        products.push({ id: doc.id, ...doc.data() });
+        productos.push({ id: doc.id, ...doc.data() });
       });
-
-      return products;
+      return productos;
     } catch (error) {
       throw new Error("Error al obtener productos: " + error.message);
     }
   },
 
-  // Obtener producto por ID
+  //Obtener producto
   async getById(id) {
     try {
-      const ref = doc(productCollection, id);
-      const producto = await getDoc(ref);
-
-      if (!producto.exists()) return null;
-      return { id: producto.id, ...producto.data() };
+      const docRef = db.collection("products").doc(id);
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) return null;
+      return { id: docSnap.id, ...docSnap.data() };
     } catch (error) {
       throw new Error("Error al obtener producto: " + error.message);
     }
   },
 
-  // Crear producto
+  //Crear producto
   async create(data) {
     try {
-      const nuevo = doc(collection(db, "products")); // Genera ID automáticamente
-      await setDoc(nuevo, data);
+      const nuevo = await db.collection("products").add(data);
       return { id: nuevo.id, ...data };
     } catch (error) {
       throw new Error("Error al crear producto: " + error.message);
@@ -54,15 +40,13 @@ export const Product = {
   //Eliminar producto
   async deleteById(id) {
     try {
-      const ref = doc(productCollection, id);
-      const producto = await getDoc(ref);
-
-      if (!producto.exists()) return null;
-
-      await deleteDoc(ref);
+      const coleccion = db.collection("products").doc(id);
+      const comprobarProducto = await coleccion.get();
+      if (!comprobarProducto.exists) return null;
+      await coleccion.delete();
       return true;
     } catch (error) {
       throw new Error("Error al eliminar producto: " + error.message);
     }
-  },
+  }
 };
