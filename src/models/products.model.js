@@ -4,14 +4,14 @@ import {
   doc,
   getDoc,
   getDocs,
-  addDoc,
-  deleteDoc
+  deleteDoc,
+  setDoc,
 } from "firebase-admin/firestore";
 
 const productCollection = collection(db, "products");
 
 export const Product = {
-  //Obtener todos los productos
+  // Obtener todos los productos
   async getAll() {
     try {
       const productList = await getDocs(productCollection);
@@ -27,7 +27,7 @@ export const Product = {
     }
   },
 
-  //Obtener producto
+  // Obtener producto por ID
   async getById(id) {
     try {
       const ref = doc(productCollection, id);
@@ -40,10 +40,11 @@ export const Product = {
     }
   },
 
-  //Crear producto
+  // Crear producto
   async create(data) {
     try {
-      const nuevo = await addDoc(productCollection, data);
+      const nuevo = doc(collection(db, "products")); // Genera ID automáticamente
+      await setDoc(nuevo, data);
       return { id: nuevo.id, ...data };
     } catch (error) {
       throw new Error("Error al crear producto: " + error.message);
@@ -63,5 +64,5 @@ export const Product = {
     } catch (error) {
       throw new Error("Error al eliminar producto: " + error.message);
     }
-  }
+  },
 };
