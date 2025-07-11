@@ -1,13 +1,13 @@
-import { Product } from "../models/products.model.js";
+import * as ProductModel from "../models/products.model.js";
 
 //Obtener todos los productos
 export const getAll = async () => {
-  return await Product.getAll();
+  return await ProductModel.getAll();
 };
 
 //Obtener producto
 export const getById = async (id) => {
-  return await Product.getById(id);
+  return await ProductModel.getById(id);
 };
 
 //Crear producto
@@ -16,14 +16,16 @@ export const create = async (data) => {
     throw new Error("Faltan campos requeridos: nombre y precio");
   }
 
-  return await Product.create(data);
+  return await ProductModel.create(data);
 };
 
 //Eliminar producto
 export const remove = async (id) => {
-  const eliminado = await Product.deleteById(id);
-  if (!eliminado) {
+  const producto = await ProductModel.getById(id);
+  if (!producto) {
     throw new Error("Producto no encontrado");
   }
-  return eliminado;
+
+  await ProductModel.remove(id);
+  return producto;
 };

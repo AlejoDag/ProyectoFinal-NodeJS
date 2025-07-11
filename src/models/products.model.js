@@ -1,35 +1,67 @@
 import { db } from "../services/firebase.js";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  addDoc,
+  deleteDoc
+} from "firebase/firestore";
 
-export class Product {
-  constructor({ id, nombre, precio }) {
-    this.id = id;
-    this.nombre = nombre;
-    this.precio = precio;
-  }
+const productCollection = collection(db, "products");
 
-  static async getAll() {
-    const snapshot = await db.collection("products").get();
-    return snapshot.docs.map(doc => new Product({ id: doc.id, ...doc.data() }));
-  }
+export const Product = {
+  //Obtener todos los productos
+  async getAll() {
+    try {
+      const productList = await getDocs(productCollection);
+      const products = [];
 
-  static async getById(id) {
-    const doc = await db.collection("products").doc(id).get();
-    if (!doc.exists) return null;
-    return new Product({ id: doc.id, ...doc.data() });
-  }
+      productList.forEach((doc) => {
+        products.push({ id: doc.id, ...doc.data() });
+      });
 
-  static async create(data) {
-    const { nombre, precio } = data;
-    const nuevoProducto = { nombre, precio };
-    const docRef = await db.collection("products").add(nuevoProducto);
-    return new Product({ id: docRef.id, ...nuevoProducto });
-  }
+      return products;
+    } catch (error) {
+      throw new Error("Error al obtener productos: " + error.message);
+    }
+  },
 
-  static async deleteById(id) {
-    const ref = db.collection("products").doc(id);
-    const doc = await ref.get();
-    if (!doc.exists) return false;
-    await ref.delete();
-    return true;
+  //Obtener producto
+  async getById(id) {
+    try {
+      const ref = doc(productCollection, id);
+      const producto = await getDoc(ref);
+
+      if (!producto.exists()) return null;
+      return { id: producto.id, ...producto.data() };
+    } catch (error) {
+      throw new Error("Error al obtener producto: " + error.message);
+    }
+  },
+
+  //Crear producto
+  async create(data) {
+    try {
+      const nuevo = await addDoc(productCollection, data);
+      return { id: nuevo.id, ...data };
+    } catch (error) {
+      throw new Error("Error al crear producto: " + error.message);
+    }
+  },
+
+  //Eliminar producto
+  async deleteById(id) {
+    try {
+      const ref = doc(productCollection, id);
+      const producto = await getDoc(ref);
+
+      if (!producto.exists()) return null;
+
+      await deleteDoc(ref);
+      return true;
+    } catch (error) {
+      throw new Error("Error al eliminar producto: " + error.message);
+    }
   }
-}
+};
