@@ -18,10 +18,10 @@ export const Product = {
   //Obtener producto
   async getById(id) {
     try {
-      const docRef = db.collection("products").doc(id);
-      const docSnap = await docRef.get();
-      if (!docSnap.exists) return null;
-      return { id: docSnap.id, ...docSnap.data() };
+      const coleccion = db.collection("products").doc(id);
+      const comprobarProducto = await coleccion.get();
+      if (!comprobarProducto.exists) return null;
+      return { id: comprobarProducto.id, ...comprobarProducto.data() };
     } catch (error) {
       throw new Error("Error al obtener producto: " + error.message);
     }
